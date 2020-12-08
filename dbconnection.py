@@ -1,17 +1,17 @@
-from cryptography.fernet import Fernet 
-import mysql.connector
+from cryptography.fernet import Fernet # lib to decrypt MySQL credentials from binary file
+import mysql.connector # MySQL connector library
 
-# Try retrieving the Fernet encryption key
+# Try retrieving the Fernet encryption key from bin file
 try:
-  loginFRetrieve = open("key.bin", "rb")  # Retrieving Encryption key from file
+  loginFRetrieve = open("config/key.bin", "rb")
   retrievedKey = loginFRetrieve.read()
   loginFRetrieve.close()
 except:
   print("Error retrieving key.")
   
-# Try retrieving the MySQL creds
+# Try retrieving the MySQL credentials from bin file
 try:
-  loginFRetrieve = open("credentials.bin", "rb")  # Retrieving MySQL server login credentials
+  loginFRetrieve = open("config/credentials.bin", "rb")
   retrievedCred = loginFRetrieve.read()
   loginFRetrieve.close()
 except:
@@ -25,7 +25,6 @@ splitCreds = credential.split(":")
 
 # Try connecting to MySQL DB with decrypted credentials
 try:
-  # print("host="+splitCreds[0]+", user="+splitCreds[1]+", password="+splitCreds[2])
   mydb = mysql.connector.connect(host=splitCreds[0],user=splitCreds[1],password=splitCreds[2],database=splitCreds[3])
 except:
   print("MySQL connection failed.")

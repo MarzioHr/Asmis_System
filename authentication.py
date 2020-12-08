@@ -7,24 +7,37 @@ mycursor = dbconnection.mydb.cursor()
 # set Argon2 password hasher object
 ph = PasswordHasher()
 
-# use Argon2 to hash password and return hash as string
-def hashPswd(password):
+def hashPswd(password:str) -> str:
+  """
+  Uses Argon2 to hash password and returns hash as string.
+  Takes clear text password string as input.
+  """
   hash = ph.hash(password)
   return hash
 
-# userExists checks a database too see if username exists in the database
-def userExists(user):
-  mycursor.execute("SELECT username FROM logins WHERE username = '%s'" % user)
+def userExists(user:str) -> bool:
+  """
+  Function to check if a username already exists in the datavase.
+  Returns True if username exists.
+  Returns False is username does not exist.
+  """
+  mycursor.execute("SELECT username FROM logins WHERE username = %(username)s", {'username': user})
   userResult = mycursor.fetchall()
   if userResult:
     return True
   return False
 
-# Creates a new user in the connected SQL database with given info and saves password as hash
-def newUser(user, password, firstName, lastName):
+def newUser(user:str, password:str, firstName:str, lastName:str) -> bool:
+  """
+  Function to signup new user with given info in the system.
+  The passed password is passed through the hash function prior to being saved in the database.
+  Returns True if signup was succesful and False if not.
+  
+  Includes validation on entered password strength. Password must inlude both letters and numbers, as well as be atleast 8 characters long.
+  """
   if userExists(user) == False:
     if (any(map(str.isdigit, password))==True) and (any(map(str.isalpha, password))==True) and (len(password)>=8):
-      mycursor.execute("SELECT username FROM logins WHERE username = '%s'" % user)
+      mycursor.execute("SELECT username FROM logins WHERE username = %(username)s", {'username': user})
       mycursor.fetchall()
       hashedPass = hashPswd(password)
       sql = "INSERT INTO logins(username, password, firstname, lastname) VALUES(%s,%s,%s,%s)"
@@ -40,8 +53,13 @@ def newUser(user, password, firstName, lastName):
     print("\nError: User exists already.")
     return False
 
-# Checks the connected SQL database for an existing user.
-def existingUser(user, password):
+def existingUser(user:str, password:str) -> tuple:
+  """
+  Function to authenticate existing user against the database.
+  Takes username and cleartext password as input. Password is then hashed and compared against the database records.
+  
+  If successful, returns authenticated user as tuple: (user id, username, first name, last name)
+  """
   if user != "":
     if userExists(user) == True:
       hashedPass = hashPswd(password)
