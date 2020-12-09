@@ -20,5 +20,4 @@ print(token)
 fopen = open("credentials.bin","wb")
 
 fopen.write(token)
-
 fopen.close()
