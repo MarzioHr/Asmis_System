@@ -33,7 +33,7 @@ def inputNameWrapper(nameType:str) -> str:
   elif nameType == "last":
     inputName = input("Last Name: ")
   if operations.sanitizeInput(inputName,"name") == True:
-    return inputUser
+    return inputName
   else:
     print("Entered %s name is invalid. Please check and try again." % nameType)
     return inputNameWrapper(nameType)
@@ -70,6 +70,7 @@ def handleRegistration() -> tuple:
     else:
       handleRegistration()
   else:
+    print("The passwords you have entered do not match. Please try again.")
     handleRegistration()
     
 def showBanner():
@@ -167,19 +168,19 @@ def handleAppointmentSearch():
     searchTerm = input("\nPlease enter patient's ID: ")
     try:
       intSearch = int(searchTerm) # tries to convert entered string to integer for id search
-      operations.searchAppointment("patient_id",intSearch,activeUser[0])
     except:
       print("Invalid ID entered. Please check your search term and try again.")
       handleAppointmentSearch()
+    operations.searchAppointment("patient_id",intSearch,activeUser[0])
   
   if userSelect == "3": # if choice is search by consulting staff id
     searchTerm = input("\nPlease enter consulting staff's ID: ")
     try:
       intSearch = int(searchTerm) # tries to convert entered string to integer for id search
-      operations.searchAppointment("consulting_staff",intSearch,activeUser[0])
     except:
       print("Invalid ID entered. Please check your search term and try again.")
-      handleAppointmentSearch()  
+      handleAppointmentSearch()
+    operations.searchAppointment("consulting_staff",intSearch,activeUser[0])
       
   else:
     showOperations()

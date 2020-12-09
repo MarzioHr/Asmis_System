@@ -13,6 +13,8 @@
 9. [Folder Structure](#folder-structure)
 10. [Testing Process and Data](#testing-process-and-data)
 11. [Test Plan](#test-plan)
+12. [Reference List](#reference-list)
+
 
 
 ### Introduction
@@ -22,6 +24,7 @@ In total, the submitted code for the end of module assignment aims to implement 
 1.	Secure Authentication and Password Hashing
 2.	Tracing Capabilities via Log Database for Search and Edit operations
 3.	Simple Staff Interface to demo implementations
+
 
 
 ### Secure Authentication
@@ -34,6 +37,7 @@ To reduce the risk of having a cyber criminal obtain system access via another u
 The python implementation includes the initial sign-up process with accepting the user-submitted password and only storing its hash in a MySQL database. Upon login, the entered password will be compared against the hash and thus will determine if the user has authenticated with acceptable credentials.
 
 
+
 ### Tracing Capabilities via Log Database
 **Threat:**
 Repudiation describes a user denying to have acted without other parties having the means to prove otherwise. This can occur if the system has no way of tracing performed actions of users. For instance, a specialist might illegitimately access a patient's file not currently under consultation. Without traces or logs, it would not be possible to prove the specialist has done so. This would also mean that an information disclosure threat has occurred. The information has been exposed to a party who should not have access to it.
@@ -43,16 +47,21 @@ Tracing all actions conducted by each user on the system via log files is an int
 
 For the sake of this implementation, a log database will be created. The python code will also include some sample functions such as: searchPatient(), editPatient(), searchAppointment(), and editAppointment() to demo the logging functionality. Every time any one of these operations is executed, a log will be created in the database containing the following information:
 -	Date + time stamp
--	Type of data effected (Patient / Appointment) 
--	Type of action (Search / Edit)
--	Record in question (ID of either patient or appointment)
--	User ID who executed the operation
+-	Type of operation (Search / Edit)
+- User ID who executed the operation
+-	Effected data table (Patient / Appointment)
+- Attribute that was searched for or edited (e.g. "first name")
+- If search operation: exact search term that was entered
+- If edit operation: record in question (ID of either patient or appointment)
+- If edit operation: value prior to edit (old value) and value after edit (new value)
+
 
 
 ### Simple Staff Interface
 The project furthermore includes a simple staff interface which allows for staff members to sign in, register, search and also edit data (appointments + patients). This interface serves as a primary mean to demo the project implementation and test the security aspects of this implementation.
 
 This document will later highlight a number of test plans that have been conducted via the interface and which can be replicated on your own end when running the project yourself.
+
 
 
 ### Prerequisites
@@ -69,13 +78,17 @@ pip install mysql-connector-python
 ```
 
 This project has been coded in python 3.6.8 and it is recommended to use the same version when executing the code on your end.
+
 ![Python Version](https://i.imgur.com/i0SiBVt.png)
+
+
 
 ### MySQL Database 
 The project uses three main databases for the implementation:
-1. 'authentication'
-2. 'data'
-3. 'eventlog'
+
+1. **Authentication**
+2. **Data**
+3. **Eventlog**
 
 **Authentication:**
 Authentication contains the user logins and their respective passwords as an Argon2 hash. When registering a new user, a new data row is inserted into the 'logins' table containing the staff's desired username, the chosen password as a hash, and the staff's first and last name.
@@ -114,6 +127,8 @@ The eventlog database serves as the log database that stores all traces of user 
 *'eventlog.events' table sample data:*
 ![events data table](https://i.imgur.com/fHOB8jz.png)
 
+
+
 ### MySQL connection in Python Code and Security Measures
 For the MySQL database insert, update, and read operations, a user is required. For this project, the user 'client'@'localhost' was created which is used for all interface operations. Prior to executing any operations, the python code needs to authenticate with the database. Instead of adding the MySQL username and password into the code as plain text, I have opted to encrypt the credentials and store them as a binary file in the 'config' folder for security purposes (using Fernet to encrypt). The encryption script and clear text credentials prior to encryption can be viewed in the 'setup' folder. When running the project, the 'dbconnection' module will attempt to decrypt the credentials binary file using the credentials.bin file stored in the same 'config' folder. Only if that is successful, the interface will be able to operate (search, edit, login, register). In an actual deployment, you would be able to limit the 'config' folder access controls, so that only the code is able to access the folder and read the 'credentials.bin' and 'key.bin' files, not the user himself. This would make it difficult for the user to obtain the actual credentials and connect to the database directly.
 
@@ -123,47 +138,63 @@ Another layer of security is provided by the application of the least privilege 
 
 SQL injection attacks are a big point for security concerns and are still regarded as the most critical web application security risk according to the OWASP Top Ten list (OWASP, 2020). The same is valid for this python project as well. The staff interface is asking for user inputs, which - if no security measures are taken - can be manipulated to executed such injections. All the malicious user would have to do, for instance, is to escape the actual username select query and insert an attack in its place, e.g.:
 ```
-input("Please enter your username: ") -> "'; select * from users where id = 1; --"
+input("Please enter your username: ") -> "'; select * from logins where id = 1; --"
 ```
 
 This is a huge problem, due to the attacker being able to authenticate as any user if no measures are taken. This projects employs two precautions to circumvent such an attack:
 
 1. For all SQL queries that are tied to a user input, the query parameter values are escaped. This means that whenever the MySQL execute function is called, the values are not just added into the query string and passed as such, but instead are passed as a separate argument. This ensures that if a malicious injection is attempted, it does not execute.
 
-2. For all user inputs, the inputed values are validated through a 'sanitizeInput' function in the operations module. Only if the input corresponds to the given convention constraints, the input is accepted and passed back to the handler function. Again, this ensures that no special characters can be passed where they are not expected.
+2. For all user inputs, the inputed values are validated through a 'sanitizeInput' function in the operations module. Only if the input corresponds to the given constraints, the input is accepted and passed back to the handler function. Again, this ensures that no special characters can be passed where they are not expected.
+
 
 
 ### Python Modules
 In total, the ASMIS project includes a total of five python modules:
-1. interface.py: main staff interface that includes handler functions to call the other modules
-2. dbconnection.py: module that decrypts the MySQL credentials and establishes the primary connection to the db
-3. authentication.py: module that handles the login and registration operations, as well as the password hashing functionality
-4. operations.py: module that handles the main portions of the search and edit operations, as well as sanitization of inputs 
-5. eventlog.py: module that handles the event logging portion of the project
+1. **interface.py:** main staff interface that includes handler functions to call the other modules
+
+2. **dbconnection.py:** module that decrypts the MySQL credentials and establishes the primary connection to the db
+
+3. **authentication.py:** module that handles the login and registration operations, as well as the password hashing functionality
+
+4. **operations.py:** module that handles the main portions of the search and edit operations, as well as sanitization of inputs 
+
+5. **eventlog.py:** module that handles the event logging portion of the project
 
 For the execution of the actual program (staff interface), please run ```python interface```.
+
+
 
 ### Folder Structure
 The python modules are all located on the root folder of the project. Furthermore, the project includes two additional folders: 'config' and 'setup'.
 
 **Config:**
+
 Config includes three binary files that are used for the code execution. In an actual deployment, this folder would need to enforce strict access controls to protect the sensitive files inside of it:
-1. banner.bin: file that contains the initial lines to be printed when the interface is executed
-2. credentials.bin: file that contains the encrypted MySQL credentials (encrypted via Fernet)
-3. key.bin: file that contains the key for the Fernet encryption and which is used to decrypt the credentials when the code is executed
+1. **banner.bin:** file that contains the initial lines to be printed when the interface is executed
+
+2. **credentials.bin:** file that contains the encrypted MySQL credentials (encrypted via Fernet)
+
+3. **key.bin:** file that contains the key for the Fernet encryption and which is used to decrypt the credentials when the code is executed
+
 
 **Setup:**
+
 Setup includes files to understand the initial setup of the project. In an actual deployment, this folder would not exist. In total, the folder includes three files:
-1. clearinput.bin: displays the MySQL credentials prior to being encrypted (format: "host:user:password:database")
-2. encrypt.py: the python script used to initially encrypt the clear credentials and outputs the credentials.bin file as seen in the 'config' folder
-3. sampledata.sql: initial sql script used to add sample data to both the 'data.patients' and the 'data.appointments' tables
+1. **clearinput.bin:** displays the MySQL credentials prior to being encrypted (format: "host:user:password:database")
+
+2. **encrypt.py:** the python script used to initially encrypt the clear credentials and outputs the credentials.bin file as seen in the 'config' folder
+
+3. **sampledata.sql:** initial sql script used to add sample data to both the 'data.patients' and the 'data.appointments' tables
+
+
 
 ### Testing Process and Data
 To test the implementation on your end, you will need to execute the 'interface.py' script. This functions as a basic demo interface for staff members. With it, you will be able to register, login, search for patient and appointment data, as well as edit the data. For each edit and search operation done via the system, an event log will be created, which can be viewed in the 'eventlog.events' MySQL data table. You will be able to create an own user once you boot up the interface. I have created a demo user account which can be used as well: 
 
 ```
-username: marzio.h
-password: ABCDEF123
+username: essex-uni
+password: Pso$bTM7a6G2
 ```
 
 For sample patient and appointment data to search for and edit, please see provided sample data in setup folder. This should be the default data existent in the system prior to any edits made.
@@ -171,44 +202,58 @@ For sample patient and appointment data to search for and edit, please see provi
 For a full list of test scenarios, please see the list below under "Test Plan".
 
 
+
 ### Test Plan
-1. Register Functionality
-[] Username may only include alpha numerical values and special characters '. _ -' 
-[] Password needs to include letters and numbers and be atleast 8 characters long
-[] 'Password' and 'Confirm Password' inputs need be the same
-[] Entered first and last name may only include letters, spaces and '-'
-[] If username already exists, prompt error
-[] Once created, password should be stored as hash in the 'authentication.logins' table
-2. Sign In Functionality
-[] Sign In works for existing user (e.g. 'marzio.h' given in the Testing Data section)
-[] Sign In works for newly registered user
-[] Entering a none-existent username should throw up an error
-[] Entering a wrong password should throw up an error
-[] If Sign In is successful, should greet staff user by first name
-3. Patient search and subsequent log creation
-[] Name searches (first+last) should only accept letters, spaces and '-'
-[] Date of birth searches should only accept numbers and '-'
-[] First name search works as expected + creates appropriate log
-[] Last name search works as expected + creates appropriate log
-[] Date of birth search works as expected + creates appropriate log
-4. Patient edit and subsequent log creation
-[] New name value (first+last) should only accept letters, spaces and '-'
-[] New date of birth values should only accept numbers and '-'
-[] First name edit works as expected + creates appropriate log
-[] Last name edit works as expected + creates appropriate log
-[] Date of birth edit works as expected + creates appropriate log
-5. Appointment search and subsequent log creation
-[] Date searches should only accept numbers and '-'
-[] ID (Patient and Staff) should only accept integers
-[] Date search works as expected + creates appropriate log
-[] Patient ID search works as expected + creates appropriate log
-[] Consulting staff ID search works as expected + creates appropriate log
-6. Appointment edit and subsequent log creation
-[] Date searches should only accept numbers and '-'
-[] ID (Patient and Staff) should only accept integers
-[] Date search works as expected + creates appropriate log
-[] Patient ID search works as expected + creates appropriate log
-[] Consulting staff ID search works as expected + creates appropriate log
-7. General
-[] Main Menu works as expected (Log Out, Patient Search, Appointment Search)
-[] "Return to main menu" and "Cancel" options work as expected
+**1. Register Functionality**
+[✓] Username may only include alpha numerical values and special characters ```. _ -```, and must have at least 3 characters
+[✓] Password needs to include letters and numbers and be atleast 8 characters long
+[✓] 'Password' and 'Confirm Password' inputs need be the same
+[✓] Entered first and last name may only include letters, spaces and ```-```, and must have at least 2 characters
+[✓] If username already exists, prompt error
+[✓] Once created, password should be stored as hash in the 'authentication.logins' table
+
+**2. Sign In Functionality**
+[✓] Sign In works for existing user (e.g. 'essex-uni' given in the Testing Data section)
+[✓] Sign In works for newly registered user
+[✓] Entering a none-existent username should throw up an error
+[✓] Entering a wrong password should throw up an error
+[✓] If Sign In is successful, should greet staff user by first name
+
+**3. Patient search and subsequent log creation**
+[✓] Name searches (first+last) should only accept letters, spaces and ```-```, and must have at least 2 characters
+[✓] Date of birth searches should only accept numbers and ```-```
+[✓] First name search works as expected + creates appropriate log
+[✓] Last name search works as expected + creates appropriate log
+[✓] Date of birth search works as expected + creates appropriate log
+
+**4. Patient edit and subsequent log creation**
+[✓] New name value (first+last) should only accept letters, spaces and ```-```, and must have at least 2 characters
+[✓] New date of birth values should only accept numbers and ```-```
+[✓] First name edit works as expected + creates appropriate log
+[✓] Last name edit works as expected + creates appropriate log
+[✓] Date of birth edit works as expected + creates appropriate log
+
+**5. Appointment search and subsequent log creation**
+[✓] Date searches should only accept numbers and ```-```
+[✓] ID (Patient and Staff) should only accept integers
+[✓] Date search works as expected + creates appropriate log
+[✓] Patient ID search works as expected + creates appropriate log
+[✓] Consulting staff ID search works as expected + creates appropriate log
+
+**6. Appointment edit and subsequent log creation**
+[✓] Date and time edits should only accept numbers and ```-```
+[✓] Consulting staff id edits should only accept integers
+[✓] Date edit works as expected + creates appropriate log
+[✓] Time edit works as expected + creates appropriate log
+[✓] Consulting staff ID edit works as expected + creates appropriate log
+
+**7. General**
+[✓] Main Menu works as expected (Log Out, Patient Search, Appointment Search)
+[✓] "Return to main menu" and "Cancel" options work as expected
+
+
+
+### Reference List
+Cheswick, W. (2012) Rethinking Passwords. Association for Computing Machinery (ACM) 10(12). Available from: https://queue.acm.org/detail.cfm?id=2422416 [Accessed 9 December 2020].
+
+OWASP (2020) OWASP Top Ten. Available from: https://owasp.org/www-project-top-ten/ [Accessed 9 December 2020].

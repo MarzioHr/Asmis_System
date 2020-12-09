@@ -17,9 +17,9 @@ def sanitizeInput(userInput:str, inputType:str) -> bool:
   """
   Takes the user input and the type of input as arguments and determines if the input is valid.
   
-  username: may include alpha numerical values and special characters '.', '_' and '-'
-  name: may include alphabetical values, spaces and special character '-'
-  datetime: may include numerical values and special characters '-' and ':'
+  username: min. 3 characters and may include alpha numerical values and special characters '.', '_' and '-'
+  name: min 2 characters and may include alphabetical values, spaces and special character '-'
+  datetime: may include numerical values and special characters '-' and ':' (format YYYY-MM-DD)
   password may include alpha numerical values and special characters but will be hashed so no sanatization required.
   """
   validUserSpecial = ('.','_','-')
@@ -27,6 +27,8 @@ def sanitizeInput(userInput:str, inputType:str) -> bool:
   validDateTimeSpecial = (':','-')
   
   if inputType == "username":
+    if len(userInput) < 3:
+      return False
     for a in userInput:
       if a.isalnum():
         continue
@@ -35,6 +37,8 @@ def sanitizeInput(userInput:str, inputType:str) -> bool:
       else:
         return False
   elif inputType == "name":
+    if len(userInput) < 2:
+      return False
     for a in userInput:
       if a.isalpha():
         continue
@@ -79,19 +83,19 @@ def displayResults(result:list, resultType:str, uid:int):
   """
   resultCount = len(result) # counts total number of results
   if resultCount == 0:
-    print("No results found, please try again.")
+    print("\nNo results found, please try again.")
     return
   elif resultCount > 0:
-    print("Found a total of %s result(s):" % resultCount)
+    print("\nFound a total of %s result(s):" % resultCount)
     print("----------------------------------------------------------------------------------------")
     if resultType == "patient":
       for i in range(0,resultCount):
         print("ID: %s\t Name: %s %s\t Date of Birth: %s\t Consultant ID: %s" % (result[i][0], result[i][1], result[i][2], result[i][3], result[i][4]))
-        displayEditChoices("patient", uid)
+      displayEditChoices("patient", uid)
     if resultType == "appointment":
       for i in range(0,resultCount):
-        print("ID: %s\t Date: %s \t Time: %s\t Patient ID: %s\t Consultant ID: %s" % (result[i][0], result[i][1], result[i][2], result[i][3], result[i][4]))
-        displayEditChoices("appointment", uid)
+        print("ID: %s\t Date: %s \t Time: %s\t\t Patient ID: %s\t\t Consultant ID: %s" % (result[i][0], result[i][1], result[i][2], result[i][3], result[i][4]))
+      displayEditChoices("appointment", uid)
     
 def displayEditChoices(choiceType:str, uid:int):
   """
@@ -113,7 +117,7 @@ def displayEditChoices(choiceType:str, uid:int):
         patientID = int(patientID) # attempt to convert string to integer
       except:
         print("Invalid selection. Please check your input and try again.")
-        displayEditChoices(choiceType,uid)      
+        displayEditChoices("patient",uid)      
       print("\n What attribute do you want to edit?") # input for attribute to change
       print(" 1.) Patient's first name")
       print(" 2.) Patient's last name")
@@ -139,7 +143,7 @@ def displayEditChoices(choiceType:str, uid:int):
         appointmentID = int(appointmentID) # attempt to convert string to integer
       except:
         print("Invalid selection. Please check your input and try again.")
-        displayEditChoices(choiceType,uid)         
+        displayEditChoices("appointment",uid)         
       print("\n What attribute do you want to edit?")
       print(" 1.) Appointment date")
       print(" 2.) Appointment time")
@@ -150,7 +154,7 @@ def displayEditChoices(choiceType:str, uid:int):
       if userSelect == '4': # user selects to cancel
         return
       else:
-        editAppointment(appointmentID,uid,ppointmentChoiceDict[userSelect])
+        editAppointment(appointmentID,uid,appointmentChoiceDict[userSelect])
     else:
       return
   
@@ -180,7 +184,9 @@ def searchAppointment(attribute, value, uid):
   """
   eventlog.createSearchLog(uid,"appointments",attribute,value)
   connectDataDB()
-  mycursor.execute("Select * FROM appointments WHERE %(key)s = %(value)s", {'key':attribute, 'value':value})
+  sql = "Select * FROM appointments WHERE " + attribute + " = %(val)s"
+  val = {'val':value}
+  mycursor.execute(sql,val)
   result = mycursor.fetchall()
   displayResults(result, "appointment", uid)
 
@@ -238,7 +244,7 @@ def editAppointment(appointmentID:int,uid:int,attribute:str):
   of what has changed, when it has changed, on what record and by what user.
   """
   connectDataDB()
-  mycursor.execute("SELECT * FROM appointments WHERE id = %s", (patientID))
+  mycursor.execute("SELECT * FROM appointments WHERE id = %(id)s", {'id':appointmentID})
   fetchValues = mycursor.fetchall()
   appointmentDatabaseDict = {'id':0,'date':1,'time':2,'consulting_staff':4}
   appointmentDisplayDict = {'id':'id','date':'date','time':'time','consulting_staff':'consulting staff id'}
@@ -255,11 +261,11 @@ def editAppointment(appointmentID:int,uid:int,attribute:str):
       intCheck = int(newValue)
     except:
       print("Invalid input. Please check your entry and try again.")
-      return displayEditChoices('patient',uid)
+      return displayEditChoices('appointment',uid)
    
   try:
     connectDataDB()
-    sql = "UPDATE patients SET " + attribute + " = %(value)s WHERE id = %(id)s"
+    sql = "UPDATE appointments SET " + attribute + " = %(value)s WHERE id = %(id)s"
     val = {'value':newValue,'id':appointmentID}
     mycursor.execute(sql,val)
     dbconnection.mydb.commit()
