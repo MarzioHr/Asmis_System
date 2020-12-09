@@ -19,7 +19,7 @@ def userExists(user:str) -> bool:
   """
   Function to check if a username already exists in the datavase.
   Returns True if username exists.
-  Returns False is username does not exist.
+  Returns False if username does not exist.
   """
   mycursor.execute("SELECT username FROM logins WHERE username = %(username)s", {'username': user})
   userResult = mycursor.fetchall()
@@ -31,7 +31,7 @@ def newUser(user:str, password:str, firstName:str, lastName:str) -> bool:
   """
   Function to signup new user with given info in the system.
   The passed password is passed through the hash function prior to being saved in the database.
-  Returns True if signup was succesful and False if not.
+  Returns True if signup was successful and False if not.
   
   Includes validation on entered password strength. Password must inlude both letters and numbers, as well as be atleast 8 characters long.
   """

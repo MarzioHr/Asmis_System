@@ -28,7 +28,7 @@ def createSearchLog(user_id:int, table:str, attribute:str, value:str) -> bool:
   dbconnection.mydb.commit()
   return True
 
-def createEditLog(user_id:int, table:str, attribute:str, edit_id:id, old:str, new:str) -> bool:
+def createEditLog(user_id:int, table:str, attribute:str, edit_id:int, old:str, new:str) -> bool:
   """
   Function to create an edit event log entry in the database.
   Takes as input the user_id that actioned the event, the table in which the edit was conducted ('patients'/'appointments'),

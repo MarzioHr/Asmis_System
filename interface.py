@@ -7,7 +7,7 @@ import eventlog
 def inputUsernameWrapper(newUser:bool) -> str:
   """
   Wrapper to validate user input for username entry.
-  Ensures that entered string is following the validation rules and if so returns the entered string.
+  Ensures that entered string is following the validation rules and, if so, returns the entered string.
   
   Differentiates between new user registration or existing login for input prompt text.
   """
@@ -24,7 +24,7 @@ def inputUsernameWrapper(newUser:bool) -> str:
 def inputNameWrapper(nameType:str) -> str:
   """
   Wrapper to validate user input for first and last name entry.
-  Ensures that entered string is following the validation rules and if so returns the entered string.
+  Ensures that entered string is following the validation rules and, if so, returns the entered string.
   
   Differentiates between first or last name for input prompt text.
   """
@@ -75,7 +75,7 @@ def handleRegistration() -> tuple:
     
 def showBanner():
   """
-  Draws banner from banner.bin file for motd and first instructions. Used instead of print statements to save space.
+  Draws banner from banner.bin file for banner and first instructions. Used instead of print statements to save space.
   """
   fBanner = open("config/banner.bin", "r")
   banner = fBanner.readlines()
