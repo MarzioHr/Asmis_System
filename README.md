@@ -12,7 +12,7 @@
 8. [Python Modules](#python-modules)
 9. [Folder Structure](#folder-structure)
 10. [Testing Process and Data](#testing-process-and-data)
-11. [Test Plan](#test-plan)
+11. [Functional Test Plan](#functional-test-plan)
 12. [Reference List](#reference-list)
 
 
@@ -199,57 +199,57 @@ password: Pso$bTM7a6G2
 
 For sample patient and appointment data to search for and edit, please see provided sample data in setup folder. This should be the default data existent in the system prior to any edits made.
 
-For a full list of test scenarios, please see the list below under "Test Plan".
+For a full list of test scenarios, please see the list below under "Functional Test Plan".
 
 
 
-### Test Plan
+### Functional Test Plan
 **1. Register Functionality**
-[✓] Username may only include alpha numerical values and special characters ```. _ -```, and must have at least 3 characters
-[✓] Password needs to include letters and numbers and be atleast 8 characters long
-[✓] 'Password' and 'Confirm Password' inputs need be the same
-[✓] Entered first and last name may only include letters, spaces and ```-```, and must have at least 2 characters
-[✓] If username already exists, prompt error
-[✓] Once created, password should be stored as hash in the 'authentication.logins' table
+- [✓] Username may only include alpha numerical values and special characters ```. _ -```, and must have at least 3 characters
+- [✓] Password needs to include letters and numbers and be atleast 8 characters long
+- [✓] 'Password' and 'Confirm Password' inputs need be the same
+- [✓] Entered first and last name may only include letters, spaces and ```-```, and must have at least 2 characters
+- [✓] If username already exists, prompt error
+- [✓] Once created, password should be stored as hash in the 'authentication.logins' table
 
 **2. Sign In Functionality**
-[✓] Sign In works for existing user (e.g. 'essex-uni' given in the Testing Data section)
-[✓] Sign In works for newly registered user
-[✓] Entering a none-existent username should throw up an error
-[✓] Entering a wrong password should throw up an error
-[✓] If Sign In is successful, should greet staff user by first name
+- [✓] Sign In works for existing user (e.g. 'essex-uni' given in the Testing Data section)
+- [✓] Sign In works for newly registered user
+- [✓] Entering a none-existent username should throw up an error
+- [✓] Entering a wrong password should throw up an error
+- [✓] If Sign In is successful, should greet staff user by first name
 
 **3. Patient search and subsequent log creation**
-[✓] Name searches (first+last) should only accept letters, spaces and ```-```, and must have at least 2 characters
-[✓] Date of birth searches should only accept numbers and ```-```
-[✓] First name search works as expected + creates appropriate log
-[✓] Last name search works as expected + creates appropriate log
-[✓] Date of birth search works as expected + creates appropriate log
+- [✓] Name searches (first+last) should only accept letters, spaces and ```-```, and must have at least 2 characters
+- [✓] Date of birth searches should only accept numbers and ```-```
+- [✓] First name search works as expected + creates appropriate log
+- [✓] Last name search works as expected + creates appropriate log
+- [✓] Date of birth search works as expected + creates appropriate log
 
 **4. Patient edit and subsequent log creation**
-[✓] New name value (first+last) should only accept letters, spaces and ```-```, and must have at least 2 characters
-[✓] New date of birth values should only accept numbers and ```-```
-[✓] First name edit works as expected + creates appropriate log
-[✓] Last name edit works as expected + creates appropriate log
-[✓] Date of birth edit works as expected + creates appropriate log
+- [✓] New name value (first+last) should only accept letters, spaces and ```-```, and must have at least 2 characters
+- [✓] New date of birth values should only accept numbers and ```-```
+- [✓] First name edit works as expected + creates appropriate log
+- [✓] Last name edit works as expected + creates appropriate log
+- [✓] Date of birth edit works as expected + creates appropriate log
 
 **5. Appointment search and subsequent log creation**
-[✓] Date searches should only accept numbers and ```-```
-[✓] ID (Patient and Staff) should only accept integers
-[✓] Date search works as expected + creates appropriate log
-[✓] Patient ID search works as expected + creates appropriate log
-[✓] Consulting staff ID search works as expected + creates appropriate log
+- [✓] Date searches should only accept numbers and ```-```
+- [✓] ID (Patient and Staff) should only accept integers
+- [✓] Date search works as expected + creates appropriate log
+- [✓] Patient ID search works as expected + creates appropriate log
+- [✓] Consulting staff ID search works as expected + creates appropriate log
 
 **6. Appointment edit and subsequent log creation**
-[✓] Date and time edits should only accept numbers and ```-```
-[✓] Consulting staff id edits should only accept integers
-[✓] Date edit works as expected + creates appropriate log
-[✓] Time edit works as expected + creates appropriate log
-[✓] Consulting staff ID edit works as expected + creates appropriate log
+- [✓] Date and time edits should only accept numbers and ```-```
+- [✓] Consulting staff id edits should only accept integers
+- [✓] Date edit works as expected + creates appropriate log
+- [✓] Time edit works as expected + creates appropriate log
+- [✓] Consulting staff ID edit works as expected + creates appropriate log
 
 **7. General**
-[✓] Main Menu works as expected (Log Out, Patient Search, Appointment Search)
-[✓] "Return to main menu" and "Cancel" options work as expected
+- [✓] Main Menu works as expected (Log Out, Patient Search, Appointment Search)
+- [✓] "Return to main menu" and "Cancel" options work as expected
 
 
 
