@@ -1,29 +1,18 @@
-# End of Module Assignment - Secure Queen Medical Centre ASMIS design
+# End of Module Assignment - Queens Medical Centre ASMIS Secure Design
 
-<!-- TABLE OF CONTENTS -->
-<details open="open">
-  <summary><h1>Table of Contents</h1></summary>
-  <ol>
-    <li><a href="#introduction">Introduction</a></li>
-    <li><a href="#authentication">Secure Authentication</a></li>
-    <li><a href="#tracing">Tracing Capabilities via Log Database</a></li>
-    <li><a href="#interface">Simple Staff Interface</a></li>
-    <li><a href="#prerequisites">Prerequisites</a></li>
-    <li>
-      <a href="#database">MySQL Database</a>
-      <ul>
-        <li><a href="#authentication">Authentication</a></li>
-        <li><a href="#data">Data</a></li>
-        <li><a href="#eventlog">Eventlog</a></li>
-      </ul>
-    </li>
-    <li><a href="#mysql-connection">MySQL connection in Python Code and security measures</a></li>
-    <li><a href="#python-modules">Python Modules</a></li>
-    <li><a href="#folder-structure">Folder Structure</a></li>
-    <li><a href="#testing-process">Testing Process + Data</a></li>
-    <li><a href="#test-plan">Test Plan</a></li>
-  </ol>  
-</details>      
+
+## Table of Contents
+1. [Introduction](#introduction)
+2. [Secure Authentication](#secure-authentication)
+3. [Tracing Capabilities via Log Database](#tracing-capabilities-via-log-database)
+4. [Simple Staff Interface](#simple-staff-interface)
+5. [Prerequisites](#prerequisites)
+6. [MySQL Database](#mysql-database)
+7. [MySQL connection in Python Code and Security Measures](#mysql-connection-in-python-code-and-security-measures)
+8. [Python Modules](#python-modules)
+9. [Folder Structure](#folder-structure)
+10. [Testing Process and Data](#testing-process-and-data)
+11. [Test Plan](#test-plan)
 
 
 ### Introduction
@@ -125,7 +114,7 @@ The eventlog database serves as the log database that stores all traces of user 
 *'eventlog.events' table sample data:*
 ![events data table](https://i.imgur.com/fHOB8jz.png)
 
-### MySQL connection in Python Code and security measures
+### MySQL connection in Python Code and Security Measures
 For the MySQL database insert, update, and read operations, a user is required. For this project, the user 'client'@'localhost' was created which is used for all interface operations. Prior to executing any operations, the python code needs to authenticate with the database. Instead of adding the MySQL username and password into the code as plain text, I have opted to encrypt the credentials and store them as a binary file in the 'config' folder for security purposes (using Fernet to encrypt). The encryption script and clear text credentials prior to encryption can be viewed in the 'setup' folder. When running the project, the 'dbconnection' module will attempt to decrypt the credentials binary file using the credentials.bin file stored in the same 'config' folder. Only if that is successful, the interface will be able to operate (search, edit, login, register). In an actual deployment, you would be able to limit the 'config' folder access controls, so that only the code is able to access the folder and read the 'credentials.bin' and 'key.bin' files, not the user himself. This would make it difficult for the user to obtain the actual credentials and connect to the database directly.
 
 Another layer of security is provided by the application of the least privilege principle. The user 'client'@'localhost' is only granted privileges that are vital for the interface operations. These are mainly select (for search and login), insert (for registration) and update (for edit) rights for the specific data tables. This ensures that in case of a breach or sql injection attack using this user, the data that may be effected is limited. A full list of granted privileges for the user can be seen here:
@@ -169,13 +158,17 @@ Setup includes files to understand the initial setup of the project. In an actua
 2. encrypt.py: the python script used to initially encrypt the clear credentials and outputs the credentials.bin file as seen in the 'config' folder
 3. sampledata.sql: initial sql script used to add sample data to both the 'data.patients' and the 'data.appointments' tables
 
-### Testing Process + Data
-To test the implementation on your end, you will need to execute the 'interface.py' script. This functions as a basic demo interface from the a staff member could use.
+### Testing Process and Data
+To test the implementation on your end, you will need to execute the 'interface.py' script. This functions as a basic demo interface for staff members. With it, you will be able to register, login, search for patient and appointment data, as well as edit the data. For each edit and search operation done via the system, an event log will be created, which can be viewed in the 'eventlog.events' MySQL data table. You will be able to create an own user once you boot up the interface. I have created a demo user account which can be used as well: 
 
+```
 username: marzio.h
 password: ABCDEF123
+```
 
-For patient and appointment data, please see provided sample data in setup folder.
+For sample patient and appointment data to search for and edit, please see provided sample data in setup folder. This should be the default data existent in the system prior to any edits made.
+
+For a full list of test scenarios, please see the list below under "Test Plan".
 
 
 ### Test Plan
